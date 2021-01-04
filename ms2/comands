@@ -1,4 +1,3 @@
-cd ..../ms2
 ./mvnw spring-boot:build-image
 docker-compose up -d
 curl localhost:9020/ms2/api/phrase
