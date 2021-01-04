@@ -1,0 +1,3 @@
+docker build -t dev4java11/ms3:latest .
+docker run -p 9030:8030 -e SPRING_PROFILES_ACTIVE=prod --name ms3 -d dev4java11/ms3:latest
+curl localhost:9030/ms3/api/user

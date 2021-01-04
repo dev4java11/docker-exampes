@@ -64,7 +64,7 @@
 				<configuration>
 					<image>
 						<name>docker.io/dev4java11/${project.artifactId}:${project.version}</name>
-						<publish>true</publish>
+						<publish>false</publish>
 					</image>
 					<docker>
 						<publishRegistry>
