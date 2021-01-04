@@ -1,0 +1,8 @@
+version: "3.3"
+services:
+  ms2:
+    image: dev4java11/ms2:1.0.0
+    ports:
+      - "9020:8020"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod

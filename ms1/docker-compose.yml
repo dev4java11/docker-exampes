@@ -1,0 +1,14 @@
+version: "3.3"
+services:
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_DATABASE: ms1db
+      MYSQL_USER: ms1
+      MYSQL_PASSWORD: ms1_abcd
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "5555:3306"
+    volumes:
+      - ${PWD}/ms1db:/var/lib/mysql

@@ -1,0 +1,43 @@
+server:
+  port: 8020
+
+spring:
+  mvc:
+    servlet:
+      path: /ms2
+      
+  profiles:
+    active:
+    - dev  
+      
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+      
+config:
+  phrase: This is development environment with docker.
+  environment: development
+  
+  
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+      
+config:
+  phrase: This is testing environment with docker.
+  environment: testing
+  
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+      
+config:
+  phrase: This is production environment with docker.
+  environment: production
+  
