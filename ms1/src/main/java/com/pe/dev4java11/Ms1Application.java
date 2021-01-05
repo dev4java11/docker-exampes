@@ -8,7 +8,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import lombok.extern.slf4j.Slf4j;
+
 @SpringBootApplication
+@Slf4j
 public class Ms1Application {
 	
 	public static void main(String[] args) {
@@ -36,6 +39,7 @@ public class Ms1Application {
 			Person p16 = new Person("Mirta", "F");
 			List<Person> persons = Arrays.asList(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16);
 			repository.saveAll(persons);
+			log.info("Save persons.");
 		};
 	}
 }

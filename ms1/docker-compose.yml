@@ -1,7 +1,19 @@
-version: "3.3"
+version: "3.7"
 services:
+  app:
+    build: .
+    ports:
+      - "9010:8010"
+    restart: always
+    depends_on:
+      - db
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/ms1db?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
+      SPRING_DATASOURCE_USERNAME: ms1
+      SPRING_DATASOURCE_PASSWORD: ms1_abcd
   db:
-    image: mariadb
+    image: mariadb:latest
     restart: always
     environment:
       MYSQL_DATABASE: ms1db
@@ -9,6 +21,6 @@ services:
       MYSQL_PASSWORD: ms1_abcd
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - "5555:3306"
+      - "3306:3306"
     volumes:
-      - ${PWD}/ms1db:/var/lib/mysql
+      - /mnt/docker/mariadb/ms1db:/var/lib/mysql
