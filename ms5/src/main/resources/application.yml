@@ -1,0 +1,32 @@
+server:
+  port: 8050
+  
+spring:
+  profiles:
+    active:
+    - dev
+    
+  cloud:
+    stream:
+      bindings:
+        logPhrases-in-o:
+          destination: log.phrases
+          content-type: text/plain
+          group: logging
+          consumer:
+            use-native-decoding: true
+        logPhrases-out-0:
+          destination: log.phrases
+          content-type: text/plain
+          producer:
+            use-native-encoding: true
+      kafka:
+        binder:
+          brokers:
+          - localhost:9092
+    
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
