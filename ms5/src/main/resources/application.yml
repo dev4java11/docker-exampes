@@ -9,17 +9,13 @@ spring:
   cloud:
     stream:
       bindings:
-        logPhrases-in-o:
+        logPhrases-in-0:
           destination: log.phrases
           content-type: text/plain
           group: logging
-          consumer:
-            use-native-decoding: true
         logPhrases-out-0:
           destination: log.phrases
           content-type: text/plain
-          producer:
-            use-native-encoding: true
       kafka:
         binder:
           brokers:

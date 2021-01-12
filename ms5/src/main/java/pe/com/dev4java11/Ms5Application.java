@@ -18,6 +18,8 @@ public class Ms5Application {
 
 	@Bean
 	public Consumer<String> logPhrases(){
-		return x -> log.info("receive prhase {}", x);
+		return x -> {
+			log.info("receive phrase {}", x);
+		};
 	}
 }
