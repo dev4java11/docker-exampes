@@ -8,6 +8,8 @@ spring:
     
   cloud:
     stream:
+      function:
+        definition: logPhrases;subscriber;publisher
       bindings:
         logPhrases-in-0:
           destination: log.phrases
@@ -15,6 +17,13 @@ spring:
           group: logging
         logPhrases-out-0:
           destination: log.phrases
+          content-type: text/plain
+        subscriber-in-0:
+          destination: random
+          content-type: text/plain
+          group: subs0
+        publisher-out-0:
+          destination: random
           content-type: text/plain
       kafka:
         binder:

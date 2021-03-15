@@ -1,0 +1,33 @@
+server:
+  port: 8060
+
+spring:
+  cloud:
+    function:
+      definition: ingest;process;result
+    stream:
+      source: ingest
+      bindings:
+        ingest-out-0:
+          destination: ingest.data
+          producer:
+#            partition-key-expression: payload.id
+            use-native-encoding: true
+        process-in-0:
+          destination: ingest.data
+          group: proc0
+        process-out-0:
+          destination: result.data
+        result-in-0:
+          destination: result.data
+          group: resu0
+      kafka:
+        bindings:
+          ingest-out-0:
+            producer:
+              configuration:
+                key.serializer: org.apache.kafka.common.serialization.StringSerializer
+                value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+        binder:
+          brokers:
+          - 192.168.0.21:9094
