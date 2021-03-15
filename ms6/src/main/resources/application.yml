@@ -1,33 +1,69 @@
 server:
   port: 8060
+  
+logging:
+  level:
+    '[pe.com.dev4java11]': info
 
 spring:
   cloud:
     function:
-      definition: ingest;process;result
+      definition: employee;filterGreaterEqualSalary2000;result
     stream:
-      source: ingest
+      source: employee
       bindings:
-        ingest-out-0:
-          destination: ingest.data
+        employee-out-0:
+          destination: employee
           producer:
+            header-mode: headers
 #            partition-key-expression: payload.id
             use-native-encoding: true
-        process-in-0:
-          destination: ingest.data
-          group: proc0
-        process-out-0:
-          destination: result.data
+        filterGreaterEqualSalary2000-in-0:
+          destination: employee
+          group: fges2000
+          consumer:
+            use-native-decoding: true
+        filterGreaterEqualSalary2000-out-0:
+          destination: fges2000
+          producer:
+            header-mode: headers
+#            partition-key-expression: payload.id
+            use-native-encoding: true
         result-in-0:
           destination: result.data
           group: resu0
       kafka:
         bindings:
-          ingest-out-0:
+          employee-out-0:
             producer:
               configuration:
-                key.serializer: org.apache.kafka.common.serialization.StringSerializer
-                value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+                '[topic.replication-factor]': 2
+                '[key.serializer]': org.apache.kafka.common.serialization.StringSerializer
+                '[value.serializer]': org.springframework.kafka.support.serializer.JsonSerializer
+          filterGreaterEqualSalary2000-in-0:
+            consumer:
+              configuration:
+                '[spring.json.trusted.packages]' : 'pe.com.dev4java11'
+                '[key.deserializer]': org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+                '[value.deserializer]': org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+                '[spring.deserializer.key.delegate.class]': org.apache.kafka.common.serialization.StringDeserializer
+                '[spring.deserializer.value.delegate.class]': org.springframework.kafka.support.serializer.JsonDeserializer
+          filterGreaterEqualSalary2000-out-0:
+            producer:
+              configuration:
+                '[topic.replication-factor]': 2
+                '[key.serializer]': org.apache.kafka.common.serialization.StringSerializer
+                '[value.serializer]': org.springframework.kafka.support.serializer.JsonSerializer
         binder:
           brokers:
-          - 192.168.0.21:9094
+          - 192.168.0.21:49156
+          - 192.168.0.21:49157
+          - 192.168.0.21:49158
+          auto-add-partitions: true
+          replication-factor: 2
+          auto-alter-topics: true
+          min-partition-count: 3
+          configuration:
+            '[spring.json.trusted.packages]': '*'
+            
+            
