@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Employee {
 	
-	private Integer id;
+	private String id;
 	private String name;
 	private char gender;
 	private Date birthday;

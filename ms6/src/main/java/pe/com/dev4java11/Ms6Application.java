@@ -1,14 +1,19 @@
 package pe.com.dev4java11;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.stream.binder.kafka.KafkaMessageChannelBinder;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,8 +40,24 @@ public class Ms6Application {
 		return e -> {
 			if(e.getSalary().compareTo(SALARY_2000) >= 0) {
 				log.info("employee.salary >= 2000: {}", e);
-				streaming.send("filterGreaterEqualSalary2000-out-0", e);
+				streaming.send("filterGreaterEqualSalary2000-out-0", 
+						MessageBuilder.withPayload(e)
+							.setHeader(KafkaHeaders.MESSAGE_KEY, e.getId())
+							.build());
+			}else {
+				throw new RuntimeException("employee " + e.getName() + " has salary is minor to 2000.");
 			}
+		};
+	}
+	
+	@Bean
+	public Consumer<Message<?>> errorFilterGreaterEqualSalary2000() {
+		return e -> {
+			log.info("headers: {}", e.getHeaders());
+			log.info("payload: {}", e.getPayload());
+			log.error("error message {}", new String(e.getHeaders().get(KafkaMessageChannelBinder.X_EXCEPTION_MESSAGE, byte[].class), StandardCharsets.UTF_8));
+			log.error("error fcqn {}", new String(e.getHeaders().get(KafkaMessageChannelBinder.X_EXCEPTION_FQCN, byte[].class), StandardCharsets.UTF_8));
+			log.error("error stacktrace {}", new String(e.getHeaders().get(KafkaMessageChannelBinder.X_EXCEPTION_STACKTRACE, byte[].class), StandardCharsets.UTF_8));
 		};
 	}
 	
@@ -48,9 +69,12 @@ public class Ms6Application {
 		private StreamBridge bridge;
 		
 		@PostMapping("/ingest/single")
-		public ResponseEntity<?> ingest(@RequestBody Employee person){
-			log.info("ingest employee: {}", person);
-			bridge.send("employee-out-0", person);
+		public ResponseEntity<?> ingest(@RequestBody Employee employee){
+			log.info("ingest employee: {}", employee);
+			bridge.send("employee-out-0", MessageBuilder
+					.withPayload(employee)
+					.setHeader(KafkaHeaders.MESSAGE_KEY, employee.getId())
+					.build());
 			return ResponseEntity.ok("");
 		}
 		
