@@ -40,7 +40,7 @@ public class Ms6Application {
 		return e -> {
 			if(e.getSalary().compareTo(SALARY_2000) >= 0) {
 				log.info("employee.salary >= 2000: {}", e);
-				streaming.send("filterGreaterEqualSalary2000-out-0", 
+				streaming.send("fges2000out0", 
 						MessageBuilder.withPayload(e)
 							.setHeader(KafkaHeaders.MESSAGE_KEY, e.getId())
 							.build());
@@ -71,7 +71,7 @@ public class Ms6Application {
 		@PostMapping("/ingest/single")
 		public ResponseEntity<?> ingest(@RequestBody Employee employee){
 			log.info("ingest employee: {}", employee);
-			bridge.send("employee-out-0", MessageBuilder
+			bridge.send("empout0", MessageBuilder
 					.withPayload(employee)
 					.setHeader(KafkaHeaders.MESSAGE_KEY, employee.getId())
 					.build());
