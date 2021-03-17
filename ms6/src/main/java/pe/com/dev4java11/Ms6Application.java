@@ -1,9 +1,14 @@
 package pe.com.dev4java11;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
+import org.apache.kafka.streams.kstream.KStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,6 +32,11 @@ import lombok.extern.slf4j.Slf4j;
 public class Ms6Application {
 	
 	public static final Double SALARY_2000 = Double.valueOf("2000");
+	
+	public static final Date DATE_1990 = Date
+			.from(LocalDate.of(1990, 1, 1)
+			.atStartOfDay(ZoneId.systemDefault())
+			.toInstant()); 
 
 	public static void main(String[] args) {
 		SpringApplication.run(Ms6Application.class, args);
@@ -59,6 +69,12 @@ public class Ms6Application {
 			log.error("error fcqn {}", new String(e.getHeaders().get(KafkaMessageChannelBinder.X_EXCEPTION_FQCN, byte[].class), StandardCharsets.UTF_8));
 			log.error("error stacktrace {}", new String(e.getHeaders().get(KafkaMessageChannelBinder.X_EXCEPTION_STACKTRACE, byte[].class), StandardCharsets.UTF_8));
 		};
+	}
+	
+	@Bean
+	public Function<KStream<String, Employee>, KStream<String, Employee>> kStreamFilterBirthdayGreaterEqual1900() {
+		return stream -> stream
+				.filter((k, v) -> v.getBirthday().after(DATE_1990));
 	}
 	
 	@RestController

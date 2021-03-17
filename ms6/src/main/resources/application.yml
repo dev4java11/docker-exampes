@@ -13,12 +13,14 @@ spring:
     stream:
       source: employee
       function:
-        definition: filterGreaterEqualSalary2000;errorFilterGreaterEqualSalary2000
+        definition: filterGreaterEqualSalary2000;errorFilterGreaterEqualSalary2000;kStreamFilterBirthdayGreaterEqual1900;
         bindings:
           '[employee-out-0]': empout0
           '[filterGreaterEqualSalary2000-in-0]': fges2000in0
           '[filterGreaterEqualSalary2000-out-0]': fges2000out0
           '[errorFilterGreaterEqualSalary2000-in-0]': efges2000in0
+          '[kStreamFilterBirthdayGreaterEqual1900-in-0]' : ksfbge1900in0
+          '[kStreamFilterBirthdayGreaterEqual1900-out-0]' : ksfbge1900out0
       bindings:
         empout0:
           destination: employee
@@ -38,6 +40,16 @@ spring:
         efges2000in0:
           destination: error.employee.fges2000
           group: fges2000
+        ksfbge1900in0:
+          destination: employee
+          group: ksfbge1900
+          consumer:
+            use-native-decoding: true
+        ksfbge1900out0:
+          destination: ksfbge1900
+          producer:
+            header-mode: headers
+            use-native-encoding: true
       kafka:
         bindings:
           empout0:
@@ -73,11 +85,38 @@ spring:
                 '[value.deserializer]': org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
                 '[spring.deserializer.key.delegate.class]': org.apache.kafka.common.serialization.StringDeserializer
                 '[spring.deserializer.value.delegate.class]': org.springframework.kafka.support.serializer.JsonDeserializer
+        streams:
+          binder:
+            functions:
+              kStreamFilterBirthdayGreaterEqual1900:
+                application-id: ksfbge1900
+            brokers:
+              - :49153
+              - :49154
+              - :49155
+            auto-add-partitions: true
+            replication-factor: 2
+            auto-alter-topics: true
+            min-partition-count: 3
+            deserialization-exception-handler: logandcontinue
+          bindings:
+            ksfbge1900in0:
+              consumer:
+                key-serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value-serde: org.springframework.kafka.support.serializer.JsonSerde
+                configuration:
+                  '[spring.json.trusted.packages]' : 'pe.com.dev4java11'
+            ksfbge1900out0:
+              producer:
+                key-serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value-serde: org.springframework.kafka.support.serializer.JsonSerde
+                configuration:
+                  '[topic.replication-factor]': 2
         binder:
           brokers:
-          - :49159
-          - :49160
-          - :49161
+          - :49153
+          - :49154
+          - :49155
           auto-add-partitions: true
           replication-factor: 2
           auto-alter-topics: true
