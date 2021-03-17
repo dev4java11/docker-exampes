@@ -13,14 +13,17 @@ spring:
     stream:
       source: employee
       function:
-        definition: filterGreaterEqualSalary2000;errorFilterGreaterEqualSalary2000;kStreamFilterBirthdayGreaterEqual1900;
+        definition: filterGreaterEqualSalary2000;errorFilterGreaterEqualSalary2000;kStreamFilterBirthdayGreaterEqual1900;kStreamCountGenders;kStreamLogCountGenders
         bindings:
           '[employee-out-0]': empout0
           '[filterGreaterEqualSalary2000-in-0]': fges2000in0
           '[filterGreaterEqualSalary2000-out-0]': fges2000out0
           '[errorFilterGreaterEqualSalary2000-in-0]': efges2000in0
-          '[kStreamFilterBirthdayGreaterEqual1900-in-0]' : ksfbge1900in0
-          '[kStreamFilterBirthdayGreaterEqual1900-out-0]' : ksfbge1900out0
+          '[kStreamFilterBirthdayGreaterEqual1900-in-0]': ksfbge1900in0
+          '[kStreamFilterBirthdayGreaterEqual1900-out-0]': ksfbge1900out0
+          '[kStreamCountGenders-in-0]': kscgin0
+          '[kStreamCountGenders-out-0]': kscgout0
+          '[kStreamLogCountGenders-in-0]': kslcgin0
       bindings:
         empout0:
           destination: employee
@@ -50,6 +53,20 @@ spring:
           producer:
             header-mode: headers
             use-native-encoding: true
+        kscgin0:
+          destination: employee
+          group: kscg
+          consumer:
+            use-native-decoding: true
+        kscgout0:
+          destination: kscg
+          producer:
+            use-native-encoding: true
+        kslcgin0:
+          destination: kscg
+          group: kslcg
+          consumer:
+            use-native-decoding: true
       kafka:
         bindings:
           empout0:
@@ -90,6 +107,10 @@ spring:
             functions:
               kStreamFilterBirthdayGreaterEqual1900:
                 application-id: ksfbge1900
+              kStreamCountGenders:
+                application-id: kscg
+              kStreamLogCountGenders:
+                application-id: kslcg
             brokers:
               - :49153
               - :49154
@@ -112,6 +133,22 @@ spring:
                 value-serde: org.springframework.kafka.support.serializer.JsonSerde
                 configuration:
                   '[topic.replication-factor]': 2
+            kscgin0:
+              consumer:
+                key-serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value-serde: org.springframework.kafka.support.serializer.JsonSerde
+                configuration:
+                  '[spring.json.trusted.packages]' : 'pe.com.dev4java11'
+            kscgout0:
+              producer:
+                key-serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value-serde: org.apache.kafka.common.serialization.Serdes$LongSerde
+                configuration:
+                  '[topic.replication-factor]': 2
+            kslcgin0:
+              consumer:
+                key-serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+                value-serde: org.apache.kafka.common.serialization.Serdes$LongSerde
         binder:
           brokers:
           - :49153

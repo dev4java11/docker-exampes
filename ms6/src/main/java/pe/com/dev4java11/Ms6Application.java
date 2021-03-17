@@ -4,21 +4,33 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Bytes;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.kstream.Grouped;
 import org.apache.kafka.streams.kstream.KStream;
+import org.apache.kafka.streams.kstream.Materialized;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.QueryableStoreTypes;
+import org.apache.kafka.streams.state.ReadOnlyKeyValueStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.binder.kafka.KafkaMessageChannelBinder;
+import org.springframework.cloud.stream.binder.kafka.streams.InteractiveQueryService;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +48,9 @@ public class Ms6Application {
 	public static final Date DATE_1990 = Date
 			.from(LocalDate.of(1990, 1, 1)
 			.atStartOfDay(ZoneId.systemDefault())
-			.toInstant()); 
+			.toInstant());
+	
+	public static final String MV_KSTEAM_COUNT_GENDERS = "mv-kscg";
 
 	public static void main(String[] args) {
 		SpringApplication.run(Ms6Application.class, args);
@@ -77,12 +91,33 @@ public class Ms6Application {
 				.filter((k, v) -> v.getBirthday().after(DATE_1990));
 	}
 	
+	
+	@Bean
+	public Function<KStream<String, Employee>, KStream<String, Long>> kStreamCountGenders() {
+		return stream -> stream
+				.map((k, v) -> new KeyValue<>(String.valueOf(v.getGender()), 1L))
+				.groupByKey(Grouped.with(Serdes.String(), Serdes.Long()))
+				.count(Materialized
+						.<String, Long, KeyValueStore<Bytes, byte[]>>as(MV_KSTEAM_COUNT_GENDERS)
+						.withKeySerde(Serdes.String())
+						.withValueSerde(Serdes.Long()))
+				.toStream();
+	}
+	
+	@Bean
+	public Consumer<KStream<String, Long>> kStreamLogCountGenders() {
+		return stream -> stream
+				.foreach((k, v) -> log.info("log count genders: {} - {}", k, v));
+	}
+	
 	@RestController
 	@RequestMapping("/api")
 	@AllArgsConstructor(onConstructor_ = @Autowired)
 	public class Api {
 		
 		private StreamBridge bridge;
+		
+		private InteractiveQueryService queryService;
 		
 		@PostMapping("/ingest/single")
 		public ResponseEntity<?> ingest(@RequestBody Employee employee){
@@ -98,6 +133,14 @@ public class Ms6Application {
 		public ResponseEntity<?> ingestList(@RequestBody List<Employee> persons){
 			persons.forEach(p -> ingest(p));
 			return ResponseEntity.ok("");
+		}
+		
+		@GetMapping("/count/genders")
+		public ResponseEntity<?> countGenders(){
+			Map<Object, Object> map = new LinkedHashMap<>();
+			ReadOnlyKeyValueStore<?, ?> query = queryService.getQueryableStore(MV_KSTEAM_COUNT_GENDERS, QueryableStoreTypes.keyValueStore());
+			query.all().forEachRemaining(kv -> map.put(kv.key, kv.value));
+			return ResponseEntity.ok(map);
 		}
 	}
 }
