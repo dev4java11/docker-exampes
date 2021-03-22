@@ -1,11 +1,13 @@
 {
     "id" : "{{$guid}}", 
     "title" : "{{$randomJobTitle}}",
+    "email" : "{{$randomEmail}}",
     "content" : "{{$randomLoremParagraph}}", 
     "timestamp" : "{{$isoTimestamp}}",
     "priority" : {{$randomInt}},
     "metadata" : {
         "keywords" : ["{{$randomColor}}", "{{$randomColor}}", "{{$randomColor}}", "{{$randomColor}}"], 
-        "size" : {{$randomNumber}}
+        "city" : "{{$randomCity}}",
+        "image" : "{{$randomImageDataUri}}"
     }
 }
