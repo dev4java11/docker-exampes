@@ -1,0 +1,41 @@
+server:
+  port: 8080
+  
+spring:
+  cloud:
+    stream:
+      source: notification
+      function:
+        definition: notificationApi
+        bindings:
+          notification-out-0: nout0
+          notificationApi-in-0: nain0
+      bindings:
+        nout0:
+          destination: notifications
+          producer:
+            use-native-encoding: true
+            header-mode: headers
+        nain0:
+          destination: notifications
+          consumer:
+            use-native-decoding: true
+      kafka:
+        binder:
+          brokers:
+          - :49153
+          - :49154
+          - :49155
+          auto-add-partitions: true
+          replication-factor: 2
+          auto-alter-topics: true
+          min-partition-count: 3
+          consumer-properties:
+            '[spring.json.trusted.packages]' : 'pe.com.dev4java11.ms8.dto'
+            '[key.deserializer]': org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+            '[value.deserializer]': org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+            '[spring.deserializer.key.delegate.class]': org.apache.kafka.common.serialization.UUIDDeserializer
+            '[spring.deserializer.value.delegate.class]': org.springframework.kafka.support.serializer.JsonDeserializer
+          producer-properties:
+            '[key.serializer]': org.apache.kafka.common.serialization.UUIDSerializer
+            '[value.serializer]': org.springframework.kafka.support.serializer.JsonSerializer

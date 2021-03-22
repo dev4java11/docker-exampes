@@ -1,0 +1,13 @@
+{
+    "id" : "be9dcf4d-71d4-4557-8044-bb97d04f6a17", 
+    "title" : "New World",
+    "email" : "myemail@mydomain.com",
+    "content" : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum consequat rhoncus massa in ornare. Maecenas sem metus, laoreet vitae ex et, dictum maximus erat. Vestibulum sit amet ultricies lorem. Mauris viverra, erat in fermentum ullamcorper, velit nunc ullamcorper metus, sed suscipit odio nibh at arcu. Donec eget posuere risus. Fusce nec turpis aliquam, pretium risus vel, porta ipsum. Donec fermentum mauris mauris. Sed ultrices, tellus vitae iaculis tristique, orci mauris imperdiet sapien, eleifend pretium eros sapien vel augue. Aliquam laoreet tristique tincidunt. Phasellus condimentum finibus commodo.", 
+    "timestamp" : "Sun, 21 March 2021 18:16:53 PET",
+    "priority" : 1,
+    "metadata" : {
+        "keywords" : ["New Wolrd", "Highest priority", "Now"],
+        "city" : "New York",
+		"image" : "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20version%3D%221.1%22%20baseProfile%3D%22full%22%20width%3D%22undefined%22%20height%3D%22undefined%22%3E%20%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22grey%22%2F%3E%20%20%3Ctext%20x%3D%220%22%20y%3D%2220%22%20font-size%3D%2220%22%20text-anchor%3D%22start%22%20fill%3D%22white%22%3Eundefinedxundefined%3C%2Ftext%3E%20%3C%2Fsvg%3E"
+    }
+}

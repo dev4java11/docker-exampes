@@ -1,0 +1,11 @@
+{
+    "id" : "{{$guid}}", 
+    "title" : "{{$randomJobTitle}}",
+    "content" : "{{$randomLoremParagraph}}", 
+    "timestamp" : "{{$isoTimestamp}}",
+    "priority" : {{$randomInt}},
+    "metadata" : {
+        "keywords" : ["{{$randomColor}}", "{{$randomColor}}", "{{$randomColor}}", "{{$randomColor}}"], 
+        "size" : {{$randomNumber}}
+    }
+}
