@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  mariadb:
+    image: mariadb
+    container_name: mariadb
+    ports: 
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: pier
+      MYSQL_PASSWORD: root
+    restart: on-failure
+    volumes:
+      - ./mariadb/data:/var/lib/mysql
