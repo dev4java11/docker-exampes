@@ -1,0 +1,88 @@
+server:
+  port: 8090
+  
+debug: false
+  
+spring:
+  application:
+    name: ms9
+  cloud:
+    stream:
+      source: cities;deleteCities
+      function:
+        definition: filterDeletedCities
+        bindings:
+          cities-out-0: cout0
+          deleteCities-out-0: dcout0
+          filterDeletedCities-in-0: fdcin0
+          filterDeletedCities-in-1: fdcin1
+          filterDeletedCities-out-0: fdcout0
+      bindings:
+        cout0:
+          destination: cities
+          producer:
+            header-mode: headers
+            use-native-encoding: true
+        dcout0:
+          destination: delete.cities
+          producer:
+            header-mode: headers
+            use-native-encoding: true
+        fdcin0:
+          destination: cities
+          group: fdc
+          consumer:
+            header-mode: headers
+            use-native-decoding: true
+        fdcin1:
+          destination: delete.cities
+          group: fdc
+          consumer:
+            header-mode: headers
+            use-native-decoding: true
+        fdcout0:
+          destination: filter.deleted.cities
+          producer:
+            header-mode: headers
+            use-native-encoding: true
+      kafka:
+        binder:
+          brokers:
+          - :9291
+          - :9292
+          - :9293
+          auto-add-partitions: true
+          auto-alter-topics: true
+          replication-factor: 2
+          min-partition-count: 3
+          consumer-properties:
+            '[spring.json.trusted.packages]' : 'pe.com.dev4java11.ms9.dto'
+            '[key.deserializer]': org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+            '[value.deserializer]': org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+            '[spring.deserializer.key.delegate.class]': org.apache.kafka.common.serialization.UUIDDeserializer
+            '[spring.deserializer.value.delegate.class]': org.springframework.kafka.support.serializer.JsonDeserializer
+          producer-properties:
+            '[key.serializer]': org.apache.kafka.common.serialization.UUIDSerializer
+            '[value.serializer]': org.springframework.kafka.support.serializer.JsonSerializer
+
+        streams:
+          binder:
+            brokers:
+            - :9291
+            - :9292
+            - :9293
+            auto-add-partitions: true
+            auto-alter-topics: true
+            replication-factor: 2
+            min-partition-count: 3
+            deserialization-exception-handler: logandcontinue
+            functions:
+              filterDeletedCities:
+                application-id: fdcApp
+            consumer-properties:
+              '[spring.json.trusted.packages]' : 'pe.com.dev4java11.ms9.dto'
+              '[key.serde]' : org.apache.kafka.common.serialization.Serdes$UUIDSerde
+              '[value.serde]' : org.springframework.kafka.support.serializer.JsonSerde
+            producer-properties:
+              '[key.serde]' : org.apache.kafka.common.serialization.Serdes$UUIDSerde
+              '[value.serde]' : org.springframework.kafka.support.serializer.JsonSerde
